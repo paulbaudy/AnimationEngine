@@ -1,15 +1,14 @@
-
 #pragma once
 
-#include "Application/App.h"
+#include <memory>
 
-extern AN::FApp* AN::MakeApp();
-
-int main(void)
+namespace AN
 {
-	AN::FApp* App = AN::MakeApp();
-	App->Run();
-
-	delete App;
-	return 0;
+	template<typename T>
+	using TUniquePtr = std::unique_ptr<T>;
+	template<typename T, typename ... Args>
+	[[nodiscard]] constexpr TUniquePtr<T> MakeUnique(Args&& ... InArgs)
+	{
+		return std::make_unique<T>(std::forward<Args>(InArgs)...);
+	}
 }

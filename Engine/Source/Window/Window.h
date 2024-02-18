@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Core/Core.h"
 #include "Core/Event.h"
+
+#include <functional>
 
 struct GLFWwindow;
 
@@ -11,7 +13,7 @@ namespace AN
 	{
 	public:
 		// TODO seperate entry point from context windows
-		static std::unique_ptr<IWindow> MakeWindow();
+		static TUniquePtr<IWindow> MakeWindow();
 
 		virtual void Update() = 0;
 		virtual void SetVSyncEnabled(bool bEnabled) = 0;

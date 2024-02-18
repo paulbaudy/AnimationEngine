@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include "Core/Log.h"
+
 #include "GLFW/glfw3.h"
 
 namespace AN
@@ -9,15 +11,17 @@ namespace AN
 		// todo log
 	}
 
-	std::unique_ptr<IWindow> IWindow::MakeWindow()
+	TUniquePtr<IWindow> IWindow::MakeWindow()
 	{
 		// TODO platform specific
-		return std::make_unique<FGlfwWindow>();
+		return MakeUnique<FGlfwWindow>();
 	}
 
 	FGlfwWindow::FGlfwWindow()
 		: IWindow()
 	{
+		LOG_TRACE("Building GLFW Window")
+
 		const float Width = 500.f;
 		const float Height = 400.f;
 
@@ -50,10 +54,12 @@ namespace AN
 		glfwPollEvents();
 		glfwSwapBuffers(Instance);
 	}
+
 	void FGlfwWindow::SetCallback(std::function<void(const FEvent&)> InCallback)
 	{
 		UserData.EventCallback = InCallback;
 	}
+
 	void FGlfwWindow::SetVSyncEnabled(bool bEnabled)
 	{
 		bVSync = bEnabled;

@@ -1,9 +1,8 @@
 # Animation Engine
 
 Currently:
-* Make a window popup
-* vulkan context
 * ImGui
+* vulkan context
 
 Next:
 * Log

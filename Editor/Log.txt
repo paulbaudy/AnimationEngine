@@ -1,0 +1,7 @@
+[2024-02-19 00:29:40.820] [AN] [trace] Logger initialized
+[2024-02-19 00:29:40.821] [AN] [trace] Building application from external entry point
+[2024-02-19 00:29:40.821] [AN] [trace] Building core application
+[2024-02-19 00:29:40.821] [AN] [trace] Building GLFW Window
+[2024-02-19 00:29:41.130] [AN] [trace] Building editor application
+[2024-02-19 00:29:41.130] [AN] [trace] Running main engine loop
+[2024-02-19 00:29:42.757] [AN] [trace] OnEvent WindowCloseEvent

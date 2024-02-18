@@ -7,6 +7,11 @@ project "Engine"
     targetdir ("%{wks.location}/Binaries/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/Intermediates/" .. outputdir .. "/%{prj.name}")
 
+    pchheader "anpch.h"
+	pchsource "src/anpch.cpp"
+
+    flags { "NoPCH" }
+
     files
     {
         "Source/**.h",
@@ -16,6 +21,7 @@ project "Engine"
     includedirs
 	{
 		"Source",
+        "../ThirdParties/spdlog/include",
         "%{IncludeDir.GLFW}",
     }
 

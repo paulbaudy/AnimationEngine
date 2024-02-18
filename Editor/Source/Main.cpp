@@ -1,5 +1,5 @@
 
-#include "Core/Core.h"
+#include "Core/Main.h"
 
 // Editor entry point
 namespace AN
@@ -10,6 +10,7 @@ namespace AN
 		FEditorApp()
 			: FApp()
 		{
+			LOG_TRACE("Building editor application")
 
 		}
 	};

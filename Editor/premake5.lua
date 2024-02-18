@@ -19,6 +19,7 @@ project "Editor"
     includedirs
 	{
 		"Source",
+        "%{wks.location}/ThirdParties/spdlog/include",
         "../Engine/Source"
     }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Window/Window.h"
 #include "Core/Event.h"
 
@@ -22,7 +21,7 @@ namespace AN
 		void OnEvent(const FWindowCloseEvent& InEvent) override final;
 		// ~End IEventListener Interface
 	private:
-		std::unique_ptr<IWindow> MainWindow;
+		TUniquePtr<IWindow> MainWindow;
 		bool bRunning = false;
 	};
 
