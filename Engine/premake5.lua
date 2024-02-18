@@ -4,9 +4,6 @@ project "Engine"
 	cppdialect "C++17"
     staticruntime "off"
 
-    outputdir = "%{cfg.buildcfg}_%{cfg.system}_%{cfg.architecture}"
-
-
     targetdir ("%{wks.location}/Binaries/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/Intermediates/" .. outputdir .. "/%{prj.name}")
 
@@ -18,5 +15,11 @@ project "Engine"
 
     includedirs
 	{
-		"Source"
+		"Source",
+        "%{IncludeDir.GLFW}",
+    }
+
+    links
+    {
+        "GLFW"
     }

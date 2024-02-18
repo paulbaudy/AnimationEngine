@@ -18,6 +18,7 @@
     <ClInclude Include="Source\Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Source\CoreMinimal.h" />
     <ClInclude Include="Source\Window\Window.h">
       <Filter>Window</Filter>
     </ClInclude>
