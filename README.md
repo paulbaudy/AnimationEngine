@@ -1,6 +1,11 @@
 # Animation Engine
 
-Todo:
-* Impot rig
-* Solvers
+Currently:
+* Make a window popup
+
+Next:
+* 
+* Import rig
 * Control Rig
+* Solvers
+

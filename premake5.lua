@@ -13,3 +13,8 @@ workspace "AN"
 group "Engine"
     include "Engine"
 group ""
+
+
+group "Editor"
+    include "Editor"
+group ""
