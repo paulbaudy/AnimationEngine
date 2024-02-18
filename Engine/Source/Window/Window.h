@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include "CoreMinimal.h"
+#include "Core/Event.h"
 
 struct GLFWwindow;
 
@@ -14,6 +15,7 @@ namespace AN
 
 		virtual void Update() = 0;
 		virtual void SetVSyncEnabled(bool bEnabled) = 0;
+		virtual void SetCallback(std::function<void(const FEvent&)> InCallback) = 0;
 
 	protected:
 		IWindow()
@@ -28,13 +30,21 @@ namespace AN
 	public:
 		FGlfwWindow();
 
+	public:
 		// Begin IWindow interface
 		virtual void Update() override;
+		virtual void SetCallback(std::function<void(const FEvent&)> InCallback) override;
 		virtual void SetVSyncEnabled(bool bEnabled) override;
 		// ~End IWindow interface
 
 	private:
 		GLFWwindow* Instance;
+		
 
+		struct FGlfwUserData
+		{
+			std::function<void(const FEvent&)> EventCallback;
+		};
+		FGlfwUserData UserData;
 	};
 }

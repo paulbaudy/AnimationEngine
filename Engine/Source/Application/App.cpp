@@ -10,6 +10,8 @@ namespace AN
 	FApp::FApp()
 	{
 		MainWindow = IWindow::MakeWindow();
+		//MainWindow->SetCallback(std::bind(&IEventVisitor::OnEvent, this, std::placeholders::_1));
+		MainWindow->SetCallback([this](const FEvent& InEvent) { IEventVisitor::OnEvent(InEvent); });
 		FApp::Instance = this;
 	}
 
@@ -31,5 +33,11 @@ namespace AN
 	{
 		return true;
 	}
+
+	void FApp::OnEvent(const FWindowCloseEvent& InEvent)
+	{
+		bRunning = false;
+	}
+
 
 }

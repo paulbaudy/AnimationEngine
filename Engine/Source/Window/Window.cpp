@@ -32,12 +32,27 @@ namespace AN
 
 
 		Instance = glfwCreateWindow((int)Width, (int)Height, "Animation Engine", nullptr, nullptr);
+		glfwSetWindowUserPointer(Instance, &UserData);
+
+
+		// Binding callbacks
+		glfwSetWindowCloseCallback(Instance, [](GLFWwindow* window)
+		{
+			FGlfwUserData& Data = *(FGlfwUserData*)glfwGetWindowUserPointer(window);
+
+			FWindowCloseEvent Event;
+			Data.EventCallback(Event);
+		});
 
 	}
 	void FGlfwWindow::Update()
 	{
 		glfwPollEvents();
 		glfwSwapBuffers(Instance);
+	}
+	void FGlfwWindow::SetCallback(std::function<void(const FEvent&)> InCallback)
+	{
+		UserData.EventCallback = InCallback;
 	}
 	void FGlfwWindow::SetVSyncEnabled(bool bEnabled)
 	{
