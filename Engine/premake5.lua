@@ -18,14 +18,24 @@ project "Engine"
         "Source/**.cpp",
     }
 
+    defines
+	{
+		"_CRT_SECURE_NO_WARNINGS",
+		"GLFW_INCLUDE_NONE"
+	}
+
     includedirs
 	{
 		"Source",
         "../ThirdParties/spdlog/include",
         "%{IncludeDir.GLFW}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.Glad}",
     }
 
     links
     {
-        "GLFW"
+        "GLFW",
+        "ImGui",
+        "Glad",
     }
