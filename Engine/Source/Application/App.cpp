@@ -30,6 +30,8 @@ namespace AN
 		{
 
 			MainWindow->Update();
+
+			MainWindow->Render();
 		}
 
 	}

@@ -70,16 +70,31 @@ namespace AN
 
 		glViewport(0, 0, Width, Height);
 
+		FrameBuffer = FFrameBuffer(100.f, 100.f);
 	}
 
 	void FGlfwWindow::Update()
 	{
+		//FrameBuffer.Bind();
+
+
+
+
+		//FrameBuffer.Unbind();
+	}
+
+	void FGlfwWindow::Render()
+	{
+		// -- Init update --
+
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 
 		ImGui::NewFrame();
-		//ImGui::Begin("Statss");
-		//ImGui::End();
+
+
+		// -- Begin update --
 
 		static bool dockspaceOpen = true;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -119,19 +134,20 @@ namespace AN
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
 		style.WindowMinSize.x = minWinSizeX;
+		style.WindowPadding = ImVec2(0.f, 0.f);
 
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-		
-		
+
+
 				ImGui::EndMenu();
 			}
-		
+
 			if (ImGui::BeginMenu("Window"))
 			{
-		
+
 				ImGui::EndMenu();
 			}
 
@@ -140,7 +156,7 @@ namespace AN
 
 				ImGui::EndMenu();
 			}
-		
+
 			ImGui::EndMenuBar();
 		}
 
@@ -151,9 +167,61 @@ namespace AN
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
+			//FrameBuffer.Bind();
+
+			static FFrameBuffer b(100.f, 100.f);
+			b.Bind();
+			auto size = ImGui::GetContentRegionAvail();
+			b.RescaleFrameBuffer(size.x, size.y);
+
+			glViewport(0, 0, size.x, size.y);
+
+			// An array of 3 vectors which represents 3 vertices
+			static const GLfloat g_vertex_buffer_data[] = {
+			   -1.0f, -1.0f, 0.0f,
+			   1.0f, -1.0f, 0.0f,
+			   0.0f,  1.0f, 0.0f,
+			};
+
+			// This will identify our vertex buffer
+			GLuint vertexbuffer;
+			// Generate 1 buffer, put the resulting identifier in vertexbuffer
+			glGenBuffers(1, &vertexbuffer);
+			// The following commands will talk about our 'vertexbuffer' buffer
+			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+			// Give our vertices to OpenGL.
+			glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+			// 1st attribute buffer : vertices
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+			glVertexAttribPointer(
+				0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// Draw the triangle !
+			glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+			glDisableVertexAttribArray(0);
+
+			ImGui::Image(
+				(ImTextureID)b.getFrameTexture(),
+				ImGui::GetContentRegionAvail(),
+				ImVec2(0, 1),
+				ImVec2(1, 0));
+
+			//FrameBuffer.Unbind();
+			b.Unbind();
+
 		ImGui::End();
 
 		ImGui::Begin("Log");
+		ImGui::End();
+
+		ImGui::Begin("Stats");
 		ImGui::End();
 
 
@@ -163,7 +231,7 @@ namespace AN
 
 
 
-		
+
 
 		//ImGui::Render();
 		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -185,6 +253,7 @@ namespace AN
 		glfwSwapBuffers(Instance);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		FrameBuffer.Unbind();
 	}
 
 	void FGlfwWindow::SetCallback(std::function<void(const FEvent&)> InCallback)

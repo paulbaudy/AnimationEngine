@@ -17,3 +17,4 @@ namespace AN
 
 #define LOG_INFO(...) AN::FLogEngine::Logger->info(__VA_ARGS__);
 #define LOG_TRACE(...) AN::FLogEngine::Logger->trace(__VA_ARGS__);
+#define LOG_ERROR(...) AN::FLogEngine::Logger->error(__VA_ARGS__);
