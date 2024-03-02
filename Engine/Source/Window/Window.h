@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "Core/Event.h"
+#include "Core/Entity.h"
 #include "Rendering/FrameBuffer.h"
 
 #include <functional>
@@ -45,6 +46,7 @@ namespace AN
 	private:
 		GLFWwindow* Instance;
 		FFrameBuffer FrameBuffer;
+		FScene Scene;
 		
 		struct FGlfwUserData
 		{

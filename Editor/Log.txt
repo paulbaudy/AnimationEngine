@@ -1,7 +1,7 @@
-[2024-03-02 18:29:13.454] [AN] [trace] Logger initialized
-[2024-03-02 18:29:13.455] [AN] [trace] Building application from external entry point
-[2024-03-02 18:29:13.455] [AN] [trace] Building core application
-[2024-03-02 18:29:13.455] [AN] [trace] Building GLFW Window
-[2024-03-02 18:29:13.695] [AN] [trace] Building editor application
-[2024-03-02 18:29:13.695] [AN] [trace] Running main engine loop
-[2024-03-02 18:32:06.721] [AN] [trace] OnEvent WindowCloseEvent
+[2024-03-02 22:28:05.893] [AN] [trace] Logger initialized
+[2024-03-02 22:28:05.894] [AN] [trace] Building application from external entry point
+[2024-03-02 22:28:05.895] [AN] [trace] Building core application
+[2024-03-02 22:28:05.895] [AN] [trace] Building GLFW Window
+[2024-03-02 22:28:06.185] [AN] [info] C:\Users\Paul\Desktop\AnimationEngine\Editor\test.txt
+[2024-03-02 22:28:06.186] [AN] [trace] Building editor application
+[2024-03-02 22:28:06.186] [AN] [trace] Running main engine loop
