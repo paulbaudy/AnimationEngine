@@ -11,8 +11,11 @@
 #include <glad/glad.h>
 #include <imgui_internal.h>
 
+
 namespace AN
 {
+	GLFWwindow* FGlfwWindow::gInstance = nullptr;
+
 	static void GLFWErrorCallback(int InError, const char* InDesc)
 	{
 		// todo log
@@ -48,6 +51,7 @@ namespace AN
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 		Instance = glfwCreateWindow((int)Width, (int)Height, "Animation Engine", nullptr, nullptr);
+		gInstance = Instance;
 		glfwSetWindowUserPointer(Instance, &UserData);
 
 
@@ -59,6 +63,28 @@ namespace AN
 			FWindowCloseEvent Event;
 			Data.EventCallback(Event);
 		});
+		glfwSetCursorPosCallback(Instance, [](GLFWwindow* window, double xpos, double ypos)
+		{
+			FGlfwUserData& Data = *(FGlfwUserData*)glfwGetWindowUserPointer(window);
+
+			FMouseMoveEvent Event;
+			Event.xpos = xpos;
+			Event.ypos = ypos;
+
+			Data.EventCallback(Event);
+		});
+		glfwSetKeyCallback(Instance, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			FGlfwUserData& Data = *(FGlfwUserData*)glfwGetWindowUserPointer(window);
+
+			FKeyEvent Event;
+			Event.key = key;
+			Event.scancode = scancode;
+			Event.action = action;
+			Event.mods = mods;
+
+			Data.EventCallback(Event);
+		});
 
 		glfwMakeContextCurrent(Instance);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -66,6 +92,17 @@ namespace AN
 		AN::InitImGui(Instance);
 
 		glViewport(0, 0, Width, Height);
+
+		// Enable depth test
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		// Enable transparancy
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glEnable(GL_MULTISAMPLE);
+
 
 		Scene.Init();
 		Scene.AddEntity();
@@ -215,6 +252,7 @@ namespace AN
 
 		Scene.DrawEntities();
 		Scene.DrawViewport();
+		Scene.DrawSceneSettings();
 
 		ImGui::Begin("Log");
 		ImGui::End();
@@ -256,6 +294,16 @@ namespace AN
 	void FGlfwWindow::SetCallback(std::function<void(const FEvent&)> InCallback)
 	{
 		UserData.EventCallback = InCallback;
+	}
+
+	void FGlfwWindow::OnMouseMoved(double xpos, double ypos)
+	{
+		Scene.OnMouseMove(xpos, ypos);
+	}
+
+	void FGlfwWindow::OnKey(int key, int scancode, int action, int mods)
+	{
+		Scene.OnKey(key, scancode, action, mods);
 	}
 
 	void FGlfwWindow::SetVSyncEnabled(bool bEnabled)

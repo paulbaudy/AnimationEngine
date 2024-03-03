@@ -19,9 +19,10 @@ namespace AN
 
 		static FApp* Instance;
 	protected: 
-		// BeginIEventListener Interface
-		
+		// Begin IEventListener Interface
 		void OnEvent(const FWindowCloseEvent& InEvent) override final;
+		void OnEvent(const FMouseMoveEvent& InEvent) override final;
+		void OnEvent(const FKeyEvent& InEvent) override final;
 		// ~End IEventListener Interface
 	private:
 		TUniquePtr<IWindow> MainWindow;

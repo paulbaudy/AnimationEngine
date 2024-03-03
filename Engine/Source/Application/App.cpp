@@ -41,6 +41,16 @@ namespace AN
 		return true;
 	}
 
+	void FApp::OnEvent(const FMouseMoveEvent& InEvent)
+	{
+		MainWindow->OnMouseMoved(InEvent.xpos, InEvent.ypos);
+	}
+
+	void FApp::OnEvent(const FKeyEvent& InEvent)
+	{
+		MainWindow->OnKey(InEvent.key, InEvent.scancode, InEvent.action, InEvent.mods);
+	}
+
 	void FApp::OnEvent(const FWindowCloseEvent& InEvent)
 	{
 		LOG_TRACE("OnEvent WindowCloseEvent")

@@ -21,6 +21,10 @@ namespace AN
 		virtual void SetVSyncEnabled(bool bEnabled) = 0;
 		virtual void SetCallback(std::function<void(const FEvent&)> InCallback) = 0;
 
+		// Events
+		virtual void OnMouseMoved(double xpos, double ypos) {}
+		virtual void OnKey(int,int,int,int) {}
+
 	protected:
 		IWindow()
 		{
@@ -39,8 +43,14 @@ namespace AN
 		virtual void Update() override;
 		virtual void Render() override;
 		virtual void SetCallback(std::function<void(const FEvent&)> InCallback) override;
+		virtual void OnMouseMoved(double xpos, double ypos) override;
+		virtual void OnKey(int, int, int, int) override;
 		virtual void SetVSyncEnabled(bool bEnabled) override;
 		// ~End IWindow interface
+
+		static GLFWwindow* GetInstance() { return gInstance; };
+		static GLFWwindow* gInstance;
+
 
 	private:
 		GLFWwindow* Instance;

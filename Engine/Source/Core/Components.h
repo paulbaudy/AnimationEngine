@@ -32,6 +32,17 @@ public:
 			* glm::scale(glm::mat4(1.0f), Scale);
 	}
 
+	glm::quat GetQuat() const
+	{
+		return RotQuat;
+	}
+
+	void SetQuat(const glm::quat& InRot)
+	{
+		RotQuat = InRot;
+		// todo update eular
+	}
+
 public:
 	glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };

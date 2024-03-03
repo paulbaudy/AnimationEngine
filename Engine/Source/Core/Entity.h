@@ -7,13 +7,18 @@
 
 #include "Rendering/FrameBuffer.h"
 #include "Rendering/Shader.h"
+#include "Core/Components.h"
 
 namespace AN
 {
 	class FCamera
 	{
 	public:
-		float FOV = 90.f;
+		float FOV = 70.f;
+		float PitchRate = 0.1f;
+		float YawRate = 0.1f;
+		float Speed = 0.1f;
+		FTransformComponent Transform;
 	};
 
 
@@ -58,6 +63,10 @@ namespace AN
 		void Update();
 		void Render();
 
+		void OnMouseMove(double xpos, double ypos);
+		void OnKey(int key, int scancode, int action, int mods);
+
+
 
 		entt::registry& GetRegistry()
 		{
@@ -88,11 +97,18 @@ namespace AN
 		void DrawEntities();
 		void DrawEntity(FEntity& InEntity);
 		void DrawViewport();
+		void DrawSceneSettings();
 
 	private:
 		FCamera EditorCamera;
+		double MouseX = 0.f;
+		double MouseY = 0.f;
+		bool bCapturing = false;
+
 		FMaterial Mat;
+		FMaterial GridMat;
 		FVertexBuffer Buffer;
+		FVertexBuffer GridBuffer;
 
 		std::vector<FEntity> Entities;
 		entt::registry EntityRegistry;
