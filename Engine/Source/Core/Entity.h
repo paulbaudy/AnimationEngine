@@ -2,50 +2,20 @@
 
 #include "Core.h"
 #include <vector>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/vec3.hpp>
-#include <glm/gtx/quaternion.hpp>
-
+#include <string>
 #include "entt.hpp"
+
+#include "Rendering/FrameBuffer.h"
+#include "Rendering/Shader.h"
 
 namespace AN
 {
-
-
 	class FCamera
 	{
-
-	};
-
-	class IComponent
-	{
 	public:
-		virtual void Update() {}
-		virtual void Render() {}
+		float FOV = 90.f;
 	};
 
-	class FSceneComponent : public IComponent
-	{
-
-	};
-
-	class FTransformComponent : public IComponent
-	{
-	public:
-		void SetEuler(const glm::vec3& InRot)
-		{
-			RotEuler = InRot;
-			RotQuat = glm::quat(RotEuler);
-		}
-
-	public:
-		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-
-	private:
-		glm::vec3 RotEuler = { 0.f, 0.f, 0.f };
-		glm::quat RotQuat = { 1.0f, 0.0f, 0.0f, 0.0f };
-	};
 
 	class FScene;
 
@@ -58,12 +28,19 @@ namespace AN
 		{
 			static unsigned int NumEntities = 0;
 			ID = NumEntities++;
+			Name = "Entity " + std::to_string(ID);
 		}
 
 		template<typename T>
 		T& AddComponent();
 
 		unsigned int GetID() const { return ID; }
+		entt::entity GetHandle() const { return Handle; }
+		const std::string& GetLabel() const { return Name; }
+		std::string& GetLabel() { return Name; }
+		const FScene* GetScene() const { return Scene; }
+		FScene* GetScene() { return Scene; }
+
 	private:
 		entt::entity Handle{ entt::null };
 		unsigned int ID;
@@ -74,7 +51,9 @@ namespace AN
 	class FScene
 	{
 	public:
+		FScene();
 
+		void Init();
 		void AddEntity();
 		void Update();
 		void Render();
@@ -85,11 +64,39 @@ namespace AN
 			return EntityRegistry;
 		}
 
-		std::vector<FEntity> Entities;
+		const entt::registry& GetRegistry() const
+		{
+			return EntityRegistry;
+		}
 
+		FEntity* GetSelectedEntity()
+		{
+			if (SelectedEntityId == -1)
+				return nullptr;
+
+			for (auto& Entity : Entities)
+			{
+				if (Entity.GetID() == SelectedEntityId)
+				{
+					return &Entity;
+				}
+			}
+		}
+
+	public: 
+		// -- ImGui editor interface --
+		void DrawEntities();
+		void DrawEntity(FEntity& InEntity);
+		void DrawViewport();
 
 	private:
+		FCamera EditorCamera;
+		FMaterial Mat;
+		FVertexBuffer Buffer;
+
+		std::vector<FEntity> Entities;
 		entt::registry EntityRegistry;
+		mutable unsigned int SelectedEntityId = -1;
 	};
 
 

@@ -3,7 +3,6 @@
 #include "Core/Core.h"
 #include "Core/Event.h"
 #include "Core/Entity.h"
-#include "Rendering/FrameBuffer.h"
 
 #include <functional>
 
@@ -44,12 +43,8 @@ namespace AN
 		// ~End IWindow interface
 
 	private:
-		void DisplayEntity(const FEntity& InEntity) const;
-
 		GLFWwindow* Instance;
-		FFrameBuffer FrameBuffer;
 		FScene Scene;
-		mutable unsigned int SelectedEntityId = -1;
 
 		bool bShowStyleEditor = false;
 		bool bShowImGuiDemo = false;

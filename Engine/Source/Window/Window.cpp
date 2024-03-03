@@ -5,12 +5,11 @@
 #include "GLFW/glfw3.h"
 
 #include <imgui.h>
-#include "Font/ImGuiFactory.h"
+#include "UI/ImGuiFactory.h"
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <glad/glad.h>
 #include <imgui_internal.h>
-
 
 namespace AN
 {
@@ -41,7 +40,12 @@ namespace AN
 		}
 
 		glfwSetErrorCallback(GLFWErrorCallback);
-
+		// GL 3.2 + GLSL 150
+		const char* glsl_version = "#version 330";
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 		Instance = glfwCreateWindow((int)Width, (int)Height, "Animation Engine", nullptr, nullptr);
 		glfwSetWindowUserPointer(Instance, &UserData);
@@ -63,8 +67,7 @@ namespace AN
 
 		glViewport(0, 0, Width, Height);
 
-		FrameBuffer = FFrameBuffer(100.f, 100.f);
-
+		Scene.Init();
 		Scene.AddEntity();
 		Scene.AddEntity();
 		Scene.AddEntity();
@@ -83,11 +86,13 @@ namespace AN
 	void FGlfwWindow::Render()
 	{
 		// -- Init update --
+		glfwPollEvents();
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-
 		ImGui::NewFrame();
 
 
@@ -208,84 +213,8 @@ namespace AN
 			ImGui::EndMenuBar();
 		}
 
-		ImGui::Begin("Entities");
-
-		static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-
-		static ImGuiTreeNodeFlags tree_node_flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_Selected;
-
-		//HelpMarker("See \"Columns flags\" section to configure how indentation is applied to individual columns.");
-		if (ImGui::BeginTable("3ways", 3, flags))
-		{
-			// The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
-			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-			ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, 16.f * 12.0f);
-			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 16.f * 18.0f);
-			ImGui::TableHeadersRow();
-
-			for (const auto& InEntity : Scene.Entities)
-			{
-				DisplayEntity(InEntity);
-			}
-
-			ImGui::EndTable();
-		}
-		ImGui::End();
-
-		ImGui::Begin("Details");
-		ImGui::End();
-
-		ImGui::Begin("Viewport");
-			//FrameBuffer.Bind();
-
-			static FFrameBuffer b(100.f, 100.f);
-			b.Bind();
-			auto size = ImGui::GetContentRegionAvail();
-			b.RescaleFrameBuffer(size.x, size.y);
-
-			glViewport(0, 0, size.x, size.y);
-
-			// An array of 3 vectors which represents 3 vertices
-			static const GLfloat g_vertex_buffer_data[] = {
-			   -1.0f, -1.0f, 0.0f,
-			   1.0f, -1.0f, 0.0f,
-			   0.0f,  1.0f, 0.0f,
-			};
-
-			// This will identify our vertex buffer
-			GLuint vertexbuffer;
-			// Generate 1 buffer, put the resulting identifier in vertexbuffer
-			glGenBuffers(1, &vertexbuffer);
-			// The following commands will talk about our 'vertexbuffer' buffer
-			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-			// Give our vertices to OpenGL.
-			glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-			// 1st attribute buffer : vertices
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-			glVertexAttribPointer(
-				0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// Draw the triangle !
-			glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-			glDisableVertexAttribArray(0);
-
-			ImGui::Image(
-				(ImTextureID)b.getFrameTexture(),
-				ImGui::GetContentRegionAvail(),
-				ImVec2(0, 1),
-				ImVec2(1, 0));
-
-			//FrameBuffer.Unbind();
-			b.Unbind();
-
-		ImGui::End();
+		Scene.DrawEntities();
+		Scene.DrawViewport();
 
 		ImGui::Begin("Log");
 		ImGui::End();
@@ -306,19 +235,8 @@ namespace AN
 			ImGui::ShowDemoWindow();
 			ImGui::End();
 		}
-
-
 		ImGui::End();
-		//ImGui::PopStyleVar();
 
-
-
-
-
-
-		//ImGui::Render();
-		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		//ImGui::UpdatePlatformWindows();
 
 		// Rendering
 		ImGui::Render();
@@ -332,11 +250,7 @@ namespace AN
 			glfwMakeContextCurrent(backup_current_context);
 		}
 
-		glfwPollEvents();
 		glfwSwapBuffers(Instance);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		FrameBuffer.Unbind();
 	}
 
 	void FGlfwWindow::SetCallback(std::function<void(const FEvent&)> InCallback)
@@ -348,36 +262,6 @@ namespace AN
 	{
 		bVSync = bEnabled;
 		glfwSwapInterval((int)bVSync);
-	}
-
-	void FGlfwWindow::DisplayEntity(const FEntity& InEntity) const
-	{
-		ImGuiTreeNodeFlags tree_node_flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_OpenOnArrow;
-		if (SelectedEntityId == InEntity.GetID())
-			tree_node_flags |= ImGuiTreeNodeFlags_Selected;
-
-		ImGui::TableNextRow();
-		ImGui::TableNextColumn();
-
-		std::string str = "Entity " + std::to_string(InEntity.GetID());
-
-		bool bOpen = ImGui::TreeNodeEx(str.c_str(), tree_node_flags);
-		if (ImGui::IsItemClicked())
-		{
-			SelectedEntityId = InEntity.GetID();
-		}
-
-		ImGui::TableNextColumn();
-		ImGui::TextDisabled("--");
-		ImGui::TableNextColumn();
-		ImGui::TextUnformatted("Entity");
-
-
-		if (bOpen)
-		{
-			// todo display childs 
-			ImGui::TreePop();
-		}
 	}
 }
 
