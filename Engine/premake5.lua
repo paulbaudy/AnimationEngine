@@ -31,6 +31,8 @@ project "Engine"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.Glad}",
+        "%{IncludeDir.GLM}",
+        "%{IncludeDir.entt}",
     }
 
     links

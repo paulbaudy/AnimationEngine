@@ -8,3 +8,6 @@
 	path = ThirdParties/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
+[submodule "ThirdParties/glm"]
+	path = ThirdParties/glm
+	url = https://github.com/g-truc/glm

@@ -9,6 +9,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <glad/glad.h>
+#include <imgui_internal.h>
+
 
 namespace AN
 {
@@ -62,6 +64,10 @@ namespace AN
 		glViewport(0, 0, Width, Height);
 
 		FrameBuffer = FFrameBuffer(100.f, 100.f);
+
+		Scene.AddEntity();
+		Scene.AddEntity();
+		Scene.AddEntity();
 	}
 
 	void FGlfwWindow::Update()
@@ -187,6 +193,8 @@ namespace AN
 
 			if (ImGui::BeginMenu("Window"))
 			{
+				ImGui::MenuItem("ImGui Style Editor", nullptr, &bShowStyleEditor);
+				ImGui::MenuItem("ImGui Demo", nullptr, &bShowImGuiDemo);
 
 				ImGui::EndMenu();
 			}
@@ -201,6 +209,27 @@ namespace AN
 		}
 
 		ImGui::Begin("Entities");
+
+		static ImGuiTableFlags flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
+
+		static ImGuiTreeNodeFlags tree_node_flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_Selected;
+
+		//HelpMarker("See \"Columns flags\" section to configure how indentation is applied to individual columns.");
+		if (ImGui::BeginTable("3ways", 3, flags))
+		{
+			// The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
+			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
+			ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, 16.f * 12.0f);
+			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 16.f * 18.0f);
+			ImGui::TableHeadersRow();
+
+			for (const auto& InEntity : Scene.Entities)
+			{
+				DisplayEntity(InEntity);
+			}
+
+			ImGui::EndTable();
+		}
 		ImGui::End();
 
 		ImGui::Begin("Details");
@@ -264,6 +293,20 @@ namespace AN
 		ImGui::Begin("Stats");
 		ImGui::End();
 
+		if (bShowStyleEditor)
+		{
+			ImGui::Begin("ImGui Style Editor", &bShowStyleEditor);
+			ImGui::ShowStyleEditor();
+			ImGui::End();
+		}
+
+		if (bShowImGuiDemo)
+		{
+			ImGui::Begin("ImGui Demo", &bShowImGuiDemo);
+			ImGui::ShowDemoWindow();
+			ImGui::End();
+		}
+
 
 		ImGui::End();
 		//ImGui::PopStyleVar();
@@ -305,6 +348,36 @@ namespace AN
 	{
 		bVSync = bEnabled;
 		glfwSwapInterval((int)bVSync);
+	}
+
+	void FGlfwWindow::DisplayEntity(const FEntity& InEntity) const
+	{
+		ImGuiTreeNodeFlags tree_node_flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_OpenOnArrow;
+		if (SelectedEntityId == InEntity.GetID())
+			tree_node_flags |= ImGuiTreeNodeFlags_Selected;
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+
+		std::string str = "Entity " + std::to_string(InEntity.GetID());
+
+		bool bOpen = ImGui::TreeNodeEx(str.c_str(), tree_node_flags);
+		if (ImGui::IsItemClicked())
+		{
+			SelectedEntityId = InEntity.GetID();
+		}
+
+		ImGui::TableNextColumn();
+		ImGui::TextDisabled("--");
+		ImGui::TableNextColumn();
+		ImGui::TextUnformatted("Entity");
+
+
+		if (bOpen)
+		{
+			// todo display childs 
+			ImGui::TreePop();
+		}
 	}
 }
 

@@ -20,7 +20,9 @@ project "Editor"
 	{
 		"Source",
         "%{wks.location}/ThirdParties/spdlog/include",
-        "../Engine/Source"
+        "../Engine/Source",
+        "%{IncludeDir.GLM}",
+        "%{IncludeDir.entt}",
     }
 
     links

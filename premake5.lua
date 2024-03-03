@@ -2,6 +2,8 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/ThirdParties/GLFW/include"
 IncludeDir["ImGui"] = "%{wks.location}/ThirdParties/imgui"
 IncludeDir["Glad"] = "%{wks.location}/ThirdParties/glad/include"
+IncludeDir["GLM"] = "%{wks.location}/ThirdParties/glm"
+IncludeDir["entt"] = "%{wks.location}/ThirdParties/entt"
 
 workspace "AN"
     architecture "x86_64"

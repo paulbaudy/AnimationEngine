@@ -44,9 +44,15 @@ namespace AN
 		// ~End IWindow interface
 
 	private:
+		void DisplayEntity(const FEntity& InEntity) const;
+
 		GLFWwindow* Instance;
 		FFrameBuffer FrameBuffer;
 		FScene Scene;
+		mutable unsigned int SelectedEntityId = -1;
+
+		bool bShowStyleEditor = false;
+		bool bShowImGuiDemo = false;
 		
 		struct FGlfwUserData
 		{

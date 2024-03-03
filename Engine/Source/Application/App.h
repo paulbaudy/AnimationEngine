@@ -2,9 +2,12 @@
 
 #include "Window/Window.h"
 #include "Core/Event.h"
+#include "Core/Core.h"
 
 namespace AN
 {
+	class IWindow;
+
 	// Runnable application
 	class FApp : public IEventVisitor
 	{
