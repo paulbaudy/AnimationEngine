@@ -103,6 +103,11 @@ namespace AN
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		glEnable(GL_MULTISAMPLE);
 
+		LastFrameTime = glfwGetTime();
+		OnFrameEnded();
+
+		glfwSwapInterval(0);
+
 
 		Scene.Init();
 		Scene.AddEntity();
@@ -110,20 +115,19 @@ namespace AN
 		Scene.AddEntity();
 	}
 
+	void FGlfwWindow::PreUpdate()
+	{
+		glfwPollEvents();
+	}
+
 	void FGlfwWindow::Update()
 	{
-		//FrameBuffer.Bind();
-
-
-
-
-		//FrameBuffer.Unbind();
+		Scene.Update(FrameTime);
 	}
 
 	void FGlfwWindow::Render()
 	{
 		// -- Init update --
-		glfwPollEvents();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -258,6 +262,7 @@ namespace AN
 		ImGui::End();
 
 		ImGui::Begin("Stats");
+		ImGui::Text("Frame Time: (%g)", FrameTime);
 		ImGui::End();
 
 		if (bShowStyleEditor)
@@ -304,6 +309,13 @@ namespace AN
 	void FGlfwWindow::OnKey(int key, int scancode, int action, int mods)
 	{
 		Scene.OnKey(key, scancode, action, mods);
+	}
+
+	void FGlfwWindow::OnFrameEnded()
+	{
+		const float Time = (float)glfwGetTime();
+		FrameTime = Time - LastFrameTime;
+		LastFrameTime = Time;
 	}
 
 	void FGlfwWindow::SetVSyncEnabled(bool bEnabled)

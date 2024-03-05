@@ -1,27 +1,18 @@
 #pragma once
 
 #include "Core.h"
-#include <vector>
-#include <string>
-#include "entt.hpp"
 
 #include "Rendering/FrameBuffer.h"
 #include "Rendering/Shader.h"
 #include "Core/Components.h"
 
+#include <vector>
+#include <string>
+#include <entt.hpp>
+
+
 namespace AN
 {
-	class FCamera
-	{
-	public:
-		float FOV = 70.f;
-		float PitchRate = 0.1f;
-		float YawRate = 0.1f;
-		float Speed = 0.1f;
-		FTransformComponent Transform;
-	};
-
-
 	class FScene;
 
 	class FEntity
@@ -52,69 +43,6 @@ namespace AN
 		std::string Name;
 		FScene* Scene;
 	};
-
-	class FScene
-	{
-	public:
-		FScene();
-
-		void Init();
-		void AddEntity();
-		void Update();
-		void Render();
-
-		void OnMouseMove(double xpos, double ypos);
-		void OnKey(int key, int scancode, int action, int mods);
-
-
-
-		entt::registry& GetRegistry()
-		{
-			return EntityRegistry;
-		}
-
-		const entt::registry& GetRegistry() const
-		{
-			return EntityRegistry;
-		}
-
-		FEntity* GetSelectedEntity()
-		{
-			if (SelectedEntityId == -1)
-				return nullptr;
-
-			for (auto& Entity : Entities)
-			{
-				if (Entity.GetID() == SelectedEntityId)
-				{
-					return &Entity;
-				}
-			}
-		}
-
-	public: 
-		// -- ImGui editor interface --
-		void DrawEntities();
-		void DrawEntity(FEntity& InEntity);
-		void DrawViewport();
-		void DrawSceneSettings();
-
-	private:
-		FCamera EditorCamera;
-		double MouseX = 0.f;
-		double MouseY = 0.f;
-		bool bCapturing = false;
-
-		FMaterial Mat;
-		FMaterial GridMat;
-		FVertexBuffer Buffer;
-		FVertexBuffer GridBuffer;
-
-		std::vector<FEntity> Entities;
-		entt::registry EntityRegistry;
-		mutable unsigned int SelectedEntityId = -1;
-	};
-
 
 	template<typename T>
 	inline T& FEntity::AddComponent()

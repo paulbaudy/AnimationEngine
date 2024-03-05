@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "Core/Components.h"
 #include "Core/Entity.h"
+#include "Core/Scene.h"
 
 namespace AN
 {

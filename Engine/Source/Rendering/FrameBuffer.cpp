@@ -67,6 +67,12 @@ namespace AN
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	void FVertexBuffer::GenBuffers()
+	{
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+	}
+
 	void FVertexBuffer::Draw()
 	{
 		glBindVertexArray(VAO);
@@ -95,8 +101,7 @@ namespace AN
 		//glBindBuffer(GL_ARRAY_BUFFER, 0);
 		//glBindVertexArray(0);
 
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
+
 		//glGenBuffers(1, &NormalBuffer);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);

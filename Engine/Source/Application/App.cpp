@@ -28,11 +28,14 @@ namespace AN
 		// assert(false); TODO assert lib
 		while (bRunning)
 		{
+			MainWindow->PreUpdate();
 
 			MainWindow->Update();
 
 			MainWindow->Render();
+			MainWindow->OnFrameEnded();
 		}
+
 
 	}
 

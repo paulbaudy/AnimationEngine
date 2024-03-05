@@ -24,6 +24,8 @@ namespace AN
 	class FVertexBuffer
 	{
 	public:
+
+		void GenBuffers();
 		void Draw();
 		void BindBuffers();
 		void UnbindBuffers();

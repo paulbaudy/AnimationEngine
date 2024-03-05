@@ -2,7 +2,7 @@
 
 #include "Core/Core.h"
 #include "Core/Event.h"
-#include "Core/Entity.h"
+#include "Core/Scene.h"
 
 #include <functional>
 
@@ -16,6 +16,7 @@ namespace AN
 		// TODO seperate entry point from context windows
 		static TUniquePtr<IWindow> MakeWindow();
 
+		virtual void PreUpdate() = 0;
 		virtual void Update() = 0;
 		virtual void Render() = 0;
 		virtual void SetVSyncEnabled(bool bEnabled) = 0;
@@ -24,6 +25,8 @@ namespace AN
 		// Events
 		virtual void OnMouseMoved(double xpos, double ypos) {}
 		virtual void OnKey(int,int,int,int) {}
+
+		virtual void OnFrameEnded() {}
 
 	protected:
 		IWindow()
@@ -40,11 +43,13 @@ namespace AN
 
 	public:
 		// Begin IWindow interface
+		virtual void PreUpdate() override;
 		virtual void Update() override;
 		virtual void Render() override;
 		virtual void SetCallback(std::function<void(const FEvent&)> InCallback) override;
 		virtual void OnMouseMoved(double xpos, double ypos) override;
 		virtual void OnKey(int, int, int, int) override;
+		virtual void OnFrameEnded() override;
 		virtual void SetVSyncEnabled(bool bEnabled) override;
 		// ~End IWindow interface
 
@@ -58,6 +63,9 @@ namespace AN
 
 		bool bShowStyleEditor = false;
 		bool bShowImGuiDemo = false;
+
+		float LastFrameTime = 0.f;
+		float FrameTime = 0.f;
 		
 		struct FGlfwUserData
 		{

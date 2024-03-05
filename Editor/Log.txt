@@ -1,11 +1,12 @@
-[2024-03-03 17:51:46.266] [AN] [trace] Logger initialized
-[2024-03-03 17:51:46.268] [AN] [trace] Building application from external entry point
-[2024-03-03 17:51:46.268] [AN] [trace] Building core application
-[2024-03-03 17:51:46.268] [AN] [trace] Building GLFW Window
-[2024-03-03 17:51:46.539] [AN] [info] C:\Users\Paul\Desktop\AnimationEngine\Editor\test.txt
-[2024-03-03 17:51:46.539] [AN] [info] Compiling shader file 'Content/Shaders/Unlit.vert' with type 'GL_VERTEX_SHADER'
-[2024-03-03 17:51:46.539] [AN] [info] Compiling shader file 'Content/Shaders/Unlit.frag' with type 'GL_FRAGMENT_SHADER'
-[2024-03-03 17:51:46.540] [AN] [info] Compiling shader file 'Content/Shaders/Grid.vert' with type 'GL_VERTEX_SHADER'
-[2024-03-03 17:51:46.540] [AN] [info] Compiling shader file 'Content/Shaders/Grid.frag' with type 'GL_FRAGMENT_SHADER'
-[2024-03-03 17:51:46.541] [AN] [trace] Building editor application
-[2024-03-03 17:51:46.541] [AN] [trace] Running main engine loop
+[2024-03-05 10:23:01.993] [AN] [trace] Logger initialized
+[2024-03-05 10:23:01.993] [AN] [trace] Building application from external entry point
+[2024-03-05 10:23:01.994] [AN] [trace] Building core application
+[2024-03-05 10:23:01.994] [AN] [trace] Building GLFW Window
+[2024-03-05 10:23:02.248] [AN] [info] C:\Users\Paul\Desktop\AnimationEngine\Editor\test.txt
+[2024-03-05 10:23:02.249] [AN] [info] Compiling shader file 'Content/Shaders/Unlit.vert' with type 'GL_VERTEX_SHADER'
+[2024-03-05 10:23:02.249] [AN] [info] Compiling shader file 'Content/Shaders/Unlit.frag' with type 'GL_FRAGMENT_SHADER'
+[2024-03-05 10:23:02.250] [AN] [info] Compiling shader file 'Content/Shaders/Grid.vert' with type 'GL_VERTEX_SHADER'
+[2024-03-05 10:23:02.250] [AN] [info] Compiling shader file 'Content/Shaders/Grid.frag' with type 'GL_FRAGMENT_SHADER'
+[2024-03-05 10:23:02.251] [AN] [trace] Building editor application
+[2024-03-05 10:23:02.251] [AN] [trace] Running main engine loop
+[2024-03-05 10:29:11.498] [AN] [trace] OnEvent WindowCloseEvent
