@@ -61,9 +61,14 @@ namespace AN
 		glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);
 	}
 
-	void FMaterial::SetMat4(const std::string& name, float* value) const
+	void FMaterial::SetMat4(const std::string& name, const float* value) const
 	{
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, value);
+	}
+
+	void FMaterial::SetVec3(const std::string& name, glm::vec3& value) const
+	{
+		glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), value.x, value.y, value.z);
 	}
 
 	std::string FMaterial::GetShaderTypeStr(int InShaderType)

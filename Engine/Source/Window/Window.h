@@ -58,8 +58,10 @@ namespace AN
 
 
 	private:
+		void OnGlError();
+
 		GLFWwindow* Instance;
-		FScene Scene;
+		std::unique_ptr<FScene> Scene;
 
 		bool bShowStyleEditor = false;
 		bool bShowImGuiDemo = false;

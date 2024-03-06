@@ -6,6 +6,7 @@
 
 #include "Rendering/Shader.h"// todo temp
 #include "Rendering/FrameBuffer.h"// todo temp
+#include "Rendering/Cubemap.h"// todo temp
 
 namespace AN
 {
@@ -17,7 +18,7 @@ namespace AN
 		FScene();
 
 		void Init();
-		void AddEntity();
+		FEntity& AddEntity(const std::string& InName = std::string());
 		void Update(const float& InDeltaTime);
 		void Render();
 
@@ -48,13 +49,25 @@ namespace AN
 		double MouseX = 0.f;
 		double MouseY = 0.f;
 		bool bCapturing = false;
-		bool bDrawGrid = true;
+		bool bDrawGrid = false;
+		bool bDrawEntities = true;
+		bool bDrawSkybox = true;
 		bool bVSync = false;
+		bool bDrawDepth = false;
 
-		FMaterial Mat;
-		FMaterial GridMat;
-		FVertexBuffer Buffer;
-		FVertexBuffer GridBuffer;
+		FMesh GridMesh;
+		FCubeMapTexture Cubemap;
+		FMaterial CubemapMat;
+		FVertexBuffer CubemapVert;
+
+		FFrameBuffer FrameBuffer;
+		// Depth buffer visualizer
+		FFrameBuffer DepthBuffer;
+		FVertexBuffer QuadBuffer;
+
+		unsigned int DepthTexture = -1;
+
+		FMaterial DepthMat;
 
 		std::vector<FEntity> Entities;
 		entt::registry EntityRegistry;

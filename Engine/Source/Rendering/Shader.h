@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <glm/glm.hpp>
 
 namespace AN
 {
@@ -23,7 +25,8 @@ namespace AN
 		void SetBool(const std::string& name, bool value) const;
 		void SetInt(const std::string& name, int value) const;
 		void SetFloat(const std::string& name, float value) const;
-		void SetMat4(const std::string& name, float* value) const;
+		void SetMat4(const std::string& name, const float* value) const;
+		void SetVec3(const std::string& name, glm::vec3& value) const;
 
 		static std::string FMaterial::GetShaderTypeStr(int InShaderType);
 		static unsigned int CompileShaderString(const char* InShaderStr, int ShaderType);

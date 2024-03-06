@@ -10,8 +10,9 @@ namespace AN
 	void DrawComponents(FEntity* InEntity)
 	{
 		FScene* Scene = InEntity->GetScene();
+		ImGuiTreeNodeFlags tree_node_flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen;
 
-		if (ImGui::TreeNode("Transform Component"))
+		if (ImGui::TreeNodeEx("Transform Component", tree_node_flags))
 		{
 			FTransformComponent& Transform = Scene->GetRegistry().get<FTransformComponent>(InEntity->GetHandle());
 			ImGui::DragFloat3("Translation", &Transform.Translation.x);
@@ -20,6 +21,15 @@ namespace AN
 
 
 			ImGui::TreePop();
+		}
+
+		if (FMeshComponent* MeshComp = InEntity->GetComponent<FMeshComponent>())
+		{
+			if (ImGui::TreeNodeEx("Mesh Component", tree_node_flags))
+			{
+				ImGui::Checkbox("Draw", &MeshComp->bDraw);
+				ImGui::TreePop();
+			}
 		}
 	}
 }

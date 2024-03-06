@@ -20,47 +20,77 @@
 namespace AN
 {
 	FScene::FScene()
+		: FrameBuffer(100.f, 100.f)
+		, DepthBuffer(100.f, 100.f)
 	{
 
 	}
 
 	void FScene::Init()
 	{
-		Mat.PushShader("Content/Shaders/Unlit.vert", GL_VERTEX_SHADER);
-		Mat.PushShader("Content/Shaders/Unlit.frag", GL_FRAGMENT_SHADER);
+		// Test Entity
+		FEntity& TriangleEntity = AddEntity("Triangle");
+		FMeshComponent& MeshComp = TriangleEntity.AddComponent<FMeshComponent>();
 
-		Buffer.GenBuffers();
-		Buffer.Vertices = {
-		   -1.0f, -1.0f, 0.0f,
-		   1.0f, -1.0f, 0.0f,
-		   0.0f,  1.0f, 0.0f,
+		MeshComp.Mesh.Geometry.Vertices = FPrimitives::GetTriangle();
+		MeshComp.Mesh.Material.PushShader("Content/Shaders/Unlit.vert", GL_VERTEX_SHADER);
+		MeshComp.Mesh.Material.PushShader("Content/Shaders/Unlit.frag", GL_FRAGMENT_SHADER);
+
+		// Plane
+		FEntity& Plane = AddEntity("Plane");
+		FMeshComponent& PlaneMesh = Plane.AddComponent<FMeshComponent>();
+
+		PlaneMesh.Mesh.Geometry.Vertices = FPrimitives::GetPlane();
+		PlaneMesh.Mesh.Material.PushShader("Content/Shaders/Unlit.vert", GL_VERTEX_SHADER);
+		PlaneMesh.Mesh.Material.PushShader("Content/Shaders/Unlit.frag", GL_FRAGMENT_SHADER);
+
+		QuadBuffer.GenBuffers();
+		QuadBuffer.Vertices = FPrimitives::GetQuad();
+
+		// Grid Mesh
+		GridMesh.Geometry.Vertices = FPrimitives::GetQuad();
+		GridMesh.Material.PushShader("Content/Shaders/Grid.vert", GL_VERTEX_SHADER);
+		GridMesh.Material.PushShader("Content/Shaders/Grid.frag", GL_FRAGMENT_SHADER);
+
+		// Skybox
+		Cubemap.GenBuffer();
+		std::vector<std::string> faces
+		{
+			"Content/Textures/Skybox/miramar_ft.tga",
+			"Content/Textures/Skybox/miramar_bk.tga",
+			"Content/Textures/Skybox/miramar_up.tga",
+			"Content/Textures/Skybox/miramar_dn.tga",
+			"Content/Textures/Skybox/miramar_rt.tga",
+			"Content/Textures/Skybox/miramar_lf.tga",
 		};
+		Cubemap.LoadTextures(faces);
+		CubemapMat.PushShader("Content/Shaders/Skybox.vert", GL_VERTEX_SHADER);
+		CubemapMat.PushShader("Content/Shaders/Skybox.frag", GL_FRAGMENT_SHADER);
+		CubemapVert.GenBuffers();
+		CubemapVert.Vertices = FPrimitives::GetSkybox();
 
-		GridBuffer.GenBuffers();
-		GridBuffer.Vertices = { // Vertices
-			1.f, 1.f, 0.f,
-			-1.f, -1.f, 0.f,
-			-1.f, 1.f, 0.f,
-			-1.f, -1.f, 0.f,
-			1.f, 1.f, 0.f,
-			1.f, -1.f, 0.f,
-		};
+		// Depth buffer material
+		DepthMat.PushShader("Content/Shaders/Quad.vert", GL_VERTEX_SHADER);
+		DepthMat.PushShader("Content/Shaders/Depth.frag", GL_FRAGMENT_SHADER);
 
-		GridMat.PushShader("Content/Shaders/Grid.vert", GL_VERTEX_SHADER);
-		GridMat.PushShader("Content/Shaders/Grid.frag", GL_FRAGMENT_SHADER);
-
+		// 
 		EditorCamera.Transform.Translation.z = 5.f;
 		EditorCamera.Transform.Translation.y = 2.f;
+
+		glGenTextures(1, &DepthTexture);
 	}
 
-	void FScene::AddEntity()
+	FEntity& FScene::AddEntity(const std::string& InName)
 	{
-		FEntity NewEntity(EntityRegistry.create(), this);
+		FEntity Entity(EntityRegistry.create(), this);
+		if(InName.size() > 0)
+			Entity.SetLabel(InName);
 
 		// Add transform component by default. All entities are scene components by design
-		NewEntity.AddComponent<FTransformComponent>();
+		Entity.AddComponent<FTransformComponent>();
 
-		Entities.push_back(NewEntity);
+		Entities.push_back(Entity);
+		return Entities.back();
 	}
 
 	void FScene::Update(const float& InDeltaTime)
@@ -88,7 +118,7 @@ namespace AN
 		}
 
 		EditorCamera.DeltaX = (xpos - MouseX);
-		EditorCamera.DeltaY = (ypos - MouseY);
+		EditorCamera.DeltaY = -(ypos - MouseY);
 
 		MouseX = xpos;
 		MouseY = ypos;
@@ -210,7 +240,6 @@ namespace AN
 	void FScene::DrawViewport()
 	{
 		ImGui::Begin("Viewport");
-		//FrameBuffer.Bind();
 		auto& io = ImGui::GetIO();
 
 		// Starting mouse capture
@@ -225,67 +254,146 @@ namespace AN
 			glfwSetInputMode(FGlfwWindow::GetInstance(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 
-		static FFrameBuffer b(100.f, 100.f);
-		b.Bind();
+		FrameBuffer.Bind();
 		auto size = ImGui::GetContentRegionAvail();
 		// @todo move these on resize
-		b.RescaleFrameBuffer(size.x, size.y);
+		FrameBuffer.RescaleFrameBuffer(size.x, size.y);
 		glViewport(0, 0, size.x, size.y);
 
-		// Draw entities
-
-		Mat.Bind();
-		Buffer.BindBuffers();
-		
+		// Draw entities		
 		static float NearClipPlane = 0.01f;
 		static float FarClipPlane = 100.f;
 		float Aspect = size.x / size.y;
 
-		glm::mat4 Projection = glm::perspective(glm::radians(EditorCamera.FOV), Aspect, NearClipPlane, FarClipPlane);
-		FTransformComponent& ViewComp = EditorCamera.Transform;
+		FRenderContext RenderContext;
+		RenderContext.Projection = glm::perspective(glm::radians(EditorCamera.FOV), Aspect, NearClipPlane, FarClipPlane);
+		RenderContext.View = glm::inverse(EditorCamera.Transform.ToMat());
 
-		glm::mat4 ViewMat = glm::inverse(EditorCamera.Transform.ToMat());
-		
-		
-		auto ComponentsView = EntityRegistry.view<FTransformComponent>();
-		for (const auto& Component : ComponentsView)
+		// Skybox
+		if (bDrawSkybox)
 		{
-			auto [Transform] = ComponentsView.get(Component);
-			glm::mat4 Model = Transform.ToMat();
-		
-			Mat.SetMat4("projection", &Projection[0][0]);
-			Mat.SetMat4("view", &ViewMat[0][0]);
-			Mat.SetMat4("model", &Model[0][0]);
-			Buffer.Draw();
+			// Reset view translation
+			FRenderContext SkyBoxContext = RenderContext;
+			FTransformComponent SkyboxTransform = EditorCamera.Transform;
+			SkyBoxContext.View = glm::inverse(glm::mat4(glm::mat3(EditorCamera.Transform.ToMat())));
+
+			glDepthMask(GL_FALSE);
+			CubemapVert.BindBuffers();
+			CubemapMat.Bind();
+			glActiveTexture(GL_TEXTURE0);
+			Cubemap.Bind();
+
+			CubemapMat.SetInt("cubemap", 0);
+			CubemapMat.SetMat4("projection", &RenderContext.Projection[0][0]);
+			CubemapMat.SetMat4("view", &SkyBoxContext.View[0][0]);
+
+			CubemapVert.Draw();
+
+			Cubemap.Unbind();
+			CubemapVert.UnbindBuffers();
+
+			glDepthMask(GL_TRUE);
 		}
-		
-		Mat.Unbind();
-		Buffer.UnbindBuffers();
+	
+		if (bDrawEntities)
+		{
+			auto ComponentsView = EntityRegistry.view<FTransformComponent, FMeshComponent>();
+			for (const auto& Component : ComponentsView)
+			{
+				auto [Transform, MeshComp] = ComponentsView.get(Component);
+				if (!MeshComp.bDraw)
+					continue;
+
+				RenderContext.Model = Transform.ToMat();
+				MeshComp.Mesh.Draw(RenderContext);
+			}
+		}
 
 		// Draw editor grid
 		if (bDrawGrid)
 		{
-			GridMat.Bind();
-			GridBuffer.BindBuffers();
-			FTransformComponent GridTransform;
-			glm::mat4 Model = GridTransform.ToMat();
-		
-			GridMat.SetMat4("projection", &Projection[0][0]);
-			GridMat.SetMat4("view", &ViewMat[0][0]);
-			GridMat.SetMat4("model", &Model[0][0]);
-			GridBuffer.Draw();
-		
-			GridMat.Unbind();
-			GridBuffer.UnbindBuffers();
+			GridMesh.Draw(RenderContext);
 		}
 
+		//DepthMat.Bind();
+		//QuadBuffer.BindBuffers();
+		//QuadBuffer.Draw();
+		//QuadBuffer.UnbindBuffers();
+		//DepthMat.Unbind();
+
+		//ImGui::Image(
+		//	(ImTextureID)DepthTexture,
+		//	ImGui::GetContentRegionAvail(),
+		//	ImVec2(0, 1),
+		//	ImVec2(1, 0));
+
+		//FrameBuffer.Unbind();
+
 		ImGui::Image(
-			(ImTextureID)b.getFrameTexture(),
+			(ImTextureID)FrameBuffer.getFrameTexture(),
 			ImGui::GetContentRegionAvail(),
 			ImVec2(0, 1),
 			ImVec2(1, 0));
 
-		b.Unbind();
+
+		if(false)
+		{
+			//glBindTexture(GL_TEXTURE_2D, 0);
+			//glActiveTexture(GL_TEXTURE0);
+			//glBindTexture(GL_TEXTURE_2D, DepthTexture);
+			//
+			//glBindFramebuffer(GL_FRAMEBUFFER, FrameBuffer.fbo);
+			////glReadBuffer(GL_BACK); // Ensure we are reading from the back buffer.
+			//glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size.x, size.y, size.x, size.y, 0);
+			//glGenerateMipmap(GL_TEXTURE_2D);
+
+			// GL_RGBA
+			// 
+			//glDepthMask(GL_FALSE);
+			//FrameBuffer.Unbind();
+
+			//DepthBuffer.Bind();
+			//DepthBuffer.RescaleFrameBuffer(size.x, size.y);
+
+			QuadBuffer.BindBuffers();
+			DepthMat.Bind();
+
+			glBindTexture(GL_TEXTURE_2D, FrameBuffer.DepthTexture);
+			glActiveTexture(GL_TEXTURE0);
+			DepthMat.SetInt("colorImage", 0);
+
+			QuadBuffer.Draw();
+
+			DepthMat.Unbind();
+			QuadBuffer.UnbindBuffers();
+
+			//DepthBuffer.Unbind();
+
+			//glDepthMask(GL_TRUE);
+
+
+			//ImGui::Image(
+			//	(ImTextureID)FrameBuffer.getFrameTexture(),
+			//	ImGui::GetContentRegionAvail(),
+			//	ImVec2(0, 1),
+			//	ImVec2(1, 0));
+		}
+
+		//ImGui::Image(
+		//	(ImTextureID)FrameBuffer.DepthTexture,
+		//	ImGui::GetContentRegionAvail(),
+		//	ImVec2(0, 1),
+		//	ImVec2(1, 0));
+
+		FrameBuffer.Unbind();
+
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			LOG_ERROR("{0}", err);
+			// Process/log the error.
+		}
+
 
 		ImGui::End();
 	}
@@ -299,6 +407,11 @@ namespace AN
 
 		if (ImGui::TreeNodeEx("Camera", tree_node_flags))
 		{
+			ImGui::Image(
+				(ImTextureID)DepthBuffer.DepthTexture,
+				ImGui::GetContentRegionAvail(),
+				ImVec2(0, 1),
+				ImVec2(1, 0));
 			static ImGuiComboFlags flags = 0;
 
 			//if (ImGui::BeginCombo("combo 1", combo_preview_value, flags))
@@ -320,17 +433,21 @@ namespace AN
 			ImGui::DragFloat("Pitch Rate", &EditorCamera.PitchRate);
 			ImGui::DragFloat("Yaw rate", &EditorCamera.YawRate);
 			ImGui::DragFloat("Speed", &EditorCamera.Speed);
+			ImGui::DragFloat3("Translation", &EditorCamera.Transform.Translation.x);
+			ImGui::DragFloat3("Rotation", &EditorCamera.Transform.RotEuler.x);
+			ImGui::DragFloat3("Scale", &EditorCamera.Transform.Scale.x);
 
 			ImGui::TreePop();
 		}
 
 		if (ImGui::TreeNodeEx("Rendering", tree_node_flags))
 		{
-
 			if (ImGui::Checkbox("VSync", &bVSync))
 			{
 				glfwSwapInterval(bVSync ? 1 : 0);
 			}
+
+			ImGui::Checkbox("Draw Depth Buffer", &bDrawDepth);
 
 			ImGui::TreePop();
 		}
@@ -338,7 +455,8 @@ namespace AN
 		if (ImGui::TreeNodeEx("Debug", tree_node_flags))
 		{
 			ImGui::Checkbox("Draw Grid", &bDrawGrid);
-			ImGui::Checkbox("Draw Entities", &bDrawGrid);
+			ImGui::Checkbox("Draw Skybox", &bDrawSkybox);
+			ImGui::Checkbox("Draw Entities", &bDrawEntities);
 
 			ImGui::TreePop();
 		}

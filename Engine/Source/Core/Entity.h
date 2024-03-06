@@ -30,9 +30,13 @@ namespace AN
 		template<typename T>
 		T& AddComponent();
 
+		template<typename T>
+		T* GetComponent();
+
 		unsigned int GetID() const { return ID; }
 		entt::entity GetHandle() const { return Handle; }
 		const std::string& GetLabel() const { return Name; }
+		void SetLabel(const std::string& InLabel) { Name = InLabel; }
 		std::string& GetLabel() { return Name; }
 		const FScene* GetScene() const { return Scene; }
 		FScene* GetScene() { return Scene; }
@@ -48,5 +52,11 @@ namespace AN
 	inline T& FEntity::AddComponent()
 	{
 		return Scene->GetRegistry().emplace<T>(Handle);
+	}
+
+	template<typename T>
+	inline T* FEntity::GetComponent()
+	{
+		return Scene->GetRegistry().try_get<T>(Handle);
 	}
 }

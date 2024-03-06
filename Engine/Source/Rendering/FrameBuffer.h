@@ -15,9 +15,10 @@ namespace AN
 		void RescaleFrameBuffer(float width, float height);
 		void Bind() const;
 		void Unbind() const;
-	private:
+	//private:
 		unsigned int fbo;
 		unsigned int texture;
+		unsigned int DepthTexture;
 		unsigned int rbo;
 	};
 

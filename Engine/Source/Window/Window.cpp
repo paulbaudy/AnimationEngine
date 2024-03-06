@@ -109,10 +109,8 @@ namespace AN
 		glfwSwapInterval(0);
 
 
-		Scene.Init();
-		Scene.AddEntity();
-		Scene.AddEntity();
-		Scene.AddEntity();
+		Scene = std::make_unique<FScene>();
+		Scene->Init();
 	}
 
 	void FGlfwWindow::PreUpdate()
@@ -122,7 +120,7 @@ namespace AN
 
 	void FGlfwWindow::Update()
 	{
-		Scene.Update(FrameTime);
+		Scene->Update(FrameTime);
 	}
 
 	void FGlfwWindow::Render()
@@ -254,15 +252,19 @@ namespace AN
 			ImGui::EndMenuBar();
 		}
 
-		Scene.DrawEntities();
-		Scene.DrawViewport();
-		Scene.DrawSceneSettings();
+		Scene->DrawEntities();
+		Scene->DrawViewport();
+		Scene->DrawSceneSettings();
 
 		ImGui::Begin("Log");
 		ImGui::End();
 
 		ImGui::Begin("Stats");
 		ImGui::Text("Frame Time: (%g)", FrameTime);
+		ImGui::End();
+
+		ImGui::Begin("Rendering");
+		
 		ImGui::End();
 
 		if (bShowStyleEditor)
@@ -303,12 +305,12 @@ namespace AN
 
 	void FGlfwWindow::OnMouseMoved(double xpos, double ypos)
 	{
-		Scene.OnMouseMove(xpos, ypos);
+		Scene->OnMouseMove(xpos, ypos);
 	}
 
 	void FGlfwWindow::OnKey(int key, int scancode, int action, int mods)
 	{
-		Scene.OnKey(key, scancode, action, mods);
+		Scene->OnKey(key, scancode, action, mods);
 	}
 
 	void FGlfwWindow::OnFrameEnded()

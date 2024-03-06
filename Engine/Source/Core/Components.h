@@ -4,6 +4,8 @@
 #include <glm/vec3.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "Rendering/Mesh.h"
+
 class IComponent
 {
 public:
@@ -14,6 +16,13 @@ public:
 class FSceneComponent : public IComponent
 {
 
+};
+
+class FMeshComponent : public IComponent
+{
+public:
+	AN::FMesh Mesh;
+	bool bDraw = true;
 };
 
 class FTransformComponent : public IComponent
@@ -39,8 +48,31 @@ public:
 
 	void SetQuat(const glm::quat& InRot)
 	{
+		const glm::vec3 OldEuler = RotEuler;
+
 		RotQuat = InRot;
-		// todo update eular
+		RotEuler = glm::eulerAngles(InRot);
+
+
+		if (
+			(fabs(RotEuler.x - OldEuler.x) == glm::pi<float>()) &&
+			(fabs(RotEuler.z - OldEuler.z) == glm::pi<float>())
+			)
+		{
+			RotEuler.x = OldEuler.x;
+			RotEuler.y = glm::pi<float>() - RotEuler.y;
+			RotEuler.z = OldEuler.z;
+		}
+	}
+
+	glm::vec3 Forward() const
+	{
+		return glm::rotate(GetQuat(), glm::vec3(0.f, 0.f, 1.f));
+	}
+
+	glm::vec3 Up() const
+	{
+		return glm::rotate(GetQuat(), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 public:
